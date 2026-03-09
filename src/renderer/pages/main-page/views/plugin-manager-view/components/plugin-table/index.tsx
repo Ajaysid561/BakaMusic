@@ -294,9 +294,20 @@ export default function PluginTable(props: IPluginTableProps) {
                                             >
                                                 {plugin.platform}
                                             </div>
-                                            <div className="plugin-card-author">
-                                                {plugin.author ??
-                                                    t("media.unknown_artist")}
+                                            <div className="plugin-card-meta">
+                                                <span className="plugin-card-version">
+                                                    {plugin.version
+                                                        ? `v${plugin.version}`
+                                                        : "v-"}
+                                                </span>
+                                                <span
+                                                    className="plugin-card-author"
+                                                    title={plugin.author ??
+                                                        t("media.unknown_artist")}
+                                                >
+                                                    {plugin.author ??
+                                                        t("media.unknown_artist")}
+                                                </span>
                                             </div>
                                         </div>
 
