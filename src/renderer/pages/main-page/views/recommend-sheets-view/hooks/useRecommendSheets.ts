@@ -6,59 +6,68 @@ import PluginManager from "@shared/plugin-manager/renderer";
 export default function (plugin: IPlugin.IPluginDelegate, tag: IMedia.IUnique | null) {
     const [sheets, setSheets] = useState<IMusic.IMusicSheetItem[]>([]);
     const [status, setStatus] = useState<RequestStateCode>(RequestStateCode.IDLE);
-    const currentTagRef = useRef<string>();
+    const currentTagRef = useRef<string | null>(null);
     const pageRef = useRef(0);
 
     const query = useCallback(async () => {
-        const tagId = tag?.id;
-        if (!tag || !tagId) {
+        if (!tag) {
             return;
         }
+        const tagId = tag.id ?? "";
         if (
-            (RequestStateCode.PENDING_FIRST_PAGE & status ||
-        RequestStateCode.FINISHED === status) &&
-      currentTagRef.current === tagId
+            (
+                status === RequestStateCode.FINISHED ||
+                status === RequestStateCode.PENDING_FIRST_PAGE ||
+                status === RequestStateCode.PENDING_REST_PAGE
+            ) &&
+            currentTagRef.current === tagId
         ) {
             return;
         }
-        if (currentTagRef.current !== tagId) {
-            setSheets([]);
-            pageRef.current = 0;
-        }
-        pageRef.current++;
-        currentTagRef.current = tagId;
+        try {
+            if (currentTagRef.current !== tagId) {
+                setSheets([]);
+                pageRef.current = 0;
+            }
+            pageRef.current++;
+            currentTagRef.current = tagId;
 
-        setStatus(
-            pageRef.current === 1
-                ? RequestStateCode.PENDING_FIRST_PAGE
-                : RequestStateCode.PENDING_REST_PAGE,
-        );
-        const res = await PluginManager.callPluginDelegateMethod(
-            plugin,
-            "getRecommendSheetsByTag",
-            tag,
-            pageRef.current,
-        );
+            setStatus(
+                pageRef.current === 1
+                    ? RequestStateCode.PENDING_FIRST_PAGE
+                    : RequestStateCode.PENDING_REST_PAGE,
+            );
 
-        if (tagId === currentTagRef.current) {
-            setSheets((prev) => [
-                ...prev,
-                ...(res.data ?? []).map((item) => resetMediaItem(item, plugin.platform)),
-            ]);
-        }
+            const res = await PluginManager.callPluginDelegateMethod(
+                plugin,
+                "getRecommendSheetsByTag",
+                tag,
+                pageRef.current,
+            ) ?? { isEnd: true, data: [] as IMusic.IMusicSheetItem[] };
+            const nextSheets = Array.isArray(res.data) ? res.data : [];
 
-        if (res.isEnd) {
-            setStatus(RequestStateCode.FINISHED);
-        } else {
-            setStatus(RequestStateCode.PARTLY_DONE);
+            if (tagId === currentTagRef.current) {
+                setSheets((prev) => [
+                    ...prev,
+                    ...nextSheets.map((item) => resetMediaItem(item, plugin.platform)),
+                ]);
+            }
+
+            if (res.isEnd) {
+                setStatus(RequestStateCode.FINISHED);
+            } else {
+                setStatus(RequestStateCode.PARTLY_DONE);
+            }
+        } catch {
+            setStatus(RequestStateCode.ERROR);
         }
-    }, [tag, status]);
+    }, [plugin.hash, plugin.platform, status, tag]);
 
     useEffect(() => {
         if (tag) {
             query();
         }
-    }, [tag]);
+    }, [plugin.hash, tag?.id]);
 
     return [query, sheets, status] as const;
 }
