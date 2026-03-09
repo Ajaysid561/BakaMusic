@@ -573,10 +573,13 @@ export default class PluginMethods implements IPlugin.IPluginInstanceMethods {
                 musicItem,
                 page,
             );
-            if (!result) {
+            if (!result || typeof result !== "object") {
                 throw new Error();
             }
-            return result;
+            return {
+                isEnd: result.isEnd === false ? false : true,
+                data: Array.isArray(result.data) ? result.data.filter(Boolean) : [],
+            };
         } catch {
             return {
                 isEnd: true,
