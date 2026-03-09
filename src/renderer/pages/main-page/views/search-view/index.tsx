@@ -1,9 +1,8 @@
-﻿import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Tab } from "@headlessui/react";
 import { supportedMediaType } from "@/common/constant";
 import NoPlugin from "@/renderer/components/NoPlugin";
 import { currentMediaTypeStore, resetStore } from "./store/search-result";
-import useSearch from "./hooks/useSearch";
 import { useTranslation } from "react-i18next";
 import { useMatch, useNavigate } from "react-router-dom";
 import PluginManager, { useSortedSupportedPlugin } from "@shared/plugin-manager/renderer";
@@ -15,14 +14,32 @@ export default function SearchView() {
     const query = decodeURIComponent(match?.params?.query ?? "");
     const plugins = useSortedSupportedPlugin("search");
     const { t } = useTranslation();
-    const search = useSearch();
     const navigate = useNavigate();
+    const initialIndex = useMemo(() => {
+        const mediaIndex = Number(history.state?.usr?.mediaIndex ?? 0);
+        if (!Number.isFinite(mediaIndex)) {
+            return 0;
+        }
+
+        return Math.min(Math.max(mediaIndex, 0), supportedMediaType.length - 1);
+    }, []);
+    const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+    const currentMediaType = supportedMediaType[selectedIndex] ?? "music";
 
     useEffect(() => {
-        if (query) {
-            const currentType = currentMediaTypeStore.getValue();
-            search(query, 1, currentType);
+        currentMediaTypeStore.setValue(currentMediaType);
+    }, [currentMediaType]);
+
+    useEffect(() => {
+        const mediaIndex = Number(history.state?.usr?.mediaIndex ?? 0);
+        if (!Number.isFinite(mediaIndex)) {
+            setSelectedIndex(0);
+            return;
         }
+
+        setSelectedIndex(
+            Math.min(Math.max(mediaIndex, 0), supportedMediaType.length - 1),
+        );
     }, [query]);
 
     useEffect(() => {
@@ -39,8 +56,9 @@ export default function SearchView() {
             </div>
             {plugins.length ? (
                 <Tab.Group
-                    defaultIndex={history.state?.usr?.mediaIndex ?? 0}
+                    selectedIndex={selectedIndex}
                     onChange={(index) => {
+                        setSelectedIndex(index);
                         currentMediaTypeStore.setValue(supportedMediaType[index]);
                         navigate("", {
                             replace: true,
@@ -58,13 +76,15 @@ export default function SearchView() {
                         ))}
                     </Tab.List>
                     <Tab.Panels className="tab-panels-container">
-                        {supportedMediaType.map((type) => (
+                        {supportedMediaType.map((type, index) => (
                             <Tab.Panel className="tab-panel-container" key={type}>
-                                <SearchResult
-                                    type={type}
-                                    plugins={PluginManager.getSortedSearchablePlugins(type)}
-                                    query={query}
-                                ></SearchResult>
+                                {selectedIndex === index ? (
+                                    <SearchResult
+                                        type={type}
+                                        plugins={PluginManager.getSortedSearchablePlugins(type)}
+                                        query={query}
+                                    ></SearchResult>
+                                ) : null}
                             </Tab.Panel>
                         ))}
                     </Tab.Panels>
