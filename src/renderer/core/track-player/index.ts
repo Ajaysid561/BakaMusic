@@ -221,27 +221,7 @@ class TrackPlayer {
         // 进度更新
         audioController.onProgressUpdate = ((progress) => {
             this.setProgress(progress);
-            // 检查歌词（词级进度驱动）
-            if (this.lyric?.parser) {
-                const active = this.lyric.parser.getActiveState(progress.currentTime);
-                const prevLrc = this.lyric.currentLrc;
-                const prevWord = this.lyric.currentWord;
-
-                // 行或词发生变化时更新
-                if (
-                    prevLrc?.index !== active.lineIndex ||
-                    prevWord?.index !== active.wordIndex ||
-                    Math.abs((this.lyric.wordProgress ?? 0) - active.wordProgress) > 0.02
-                ) {
-                    this.setCurrentLyric({
-                        parser: this.lyric.parser,
-                        currentLrc: active.line,
-                        currentWord: active.word,
-                        lineProgress: active.lineProgress,
-                        wordProgress: active.wordProgress,
-                    });
-                }
-            }
+            this.syncCurrentLyric(progress.currentTime);
         });
 
         audioController.onVolumeChange = (rawVolume) => {
@@ -539,7 +519,18 @@ class TrackPlayer {
     }
 
     public seekTo(seconds: number) {
-        this.audioController.seekTo(seconds);
+        const nextCurrentTime = this.normalizeSeekTime(seconds);
+
+        this.audioController.seekTo(nextCurrentTime);
+
+        const duration = this.progress.duration;
+        if (isFinite(duration) && duration > 0) {
+            this.setProgress({
+                currentTime: nextCurrentTime,
+                duration,
+            });
+            this.syncCurrentLyric(nextCurrentTime);
+        }
     }
 
     public pause() {
@@ -923,6 +914,41 @@ class TrackPlayer {
         progressStore.setValue(progress);
         setUserPreference("currentProgress", progress.currentTime);
         this.ee.emit(PlayerEvents.ProgressChanged, progress);
+    }
+
+    private normalizeSeekTime(seconds: number) {
+        const safeSeconds = Math.max(0, Number.isFinite(seconds) ? seconds : 0);
+        const duration = this.progress.duration;
+
+        if (!isFinite(duration) || duration <= 0) {
+            return safeSeconds;
+        }
+
+        return Math.min(safeSeconds, duration);
+    }
+
+    private syncCurrentLyric(currentTime: number) {
+        if (!this.lyric?.parser) {
+            return;
+        }
+
+        const active = this.lyric.parser.getActiveState(currentTime);
+        const prevLrc = this.lyric.currentLrc;
+        const prevWord = this.lyric.currentWord;
+
+        if (
+            prevLrc?.index !== active.lineIndex ||
+            prevWord?.index !== active.wordIndex ||
+            Math.abs((this.lyric.wordProgress ?? 0) - active.wordProgress) > 0.02
+        ) {
+            this.setCurrentLyric({
+                parser: this.lyric.parser,
+                currentLrc: active.line,
+                currentWord: active.word,
+                lineProgress: active.lineProgress,
+                wordProgress: active.wordProgress,
+            });
+        }
     }
 
     private setCurrentQuality(quality: IMusic.IQualityKey) {
